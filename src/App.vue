@@ -7,6 +7,7 @@
           <h1 class="is-size-4 has-text-weight-bold is-primary has-text-primary">STOMP ROCKET <span
               class=" has-text-weight-light has-text-black">STATUS</span></h1>
           <p> v{{version}}</p>
+
         </div>
 
 
@@ -21,6 +22,7 @@
       <div id="navbarBasicExample" class="navbar-menu">
 
         <div class="navbar-end">
+          <p v-if="admin" class="has-text-info navbar-item">Admin User</p>
           <div class="navbar-item">
             <div class="buttons">
 
@@ -44,19 +46,23 @@
     data() {
       return {
         user: false,
-        //apiURL: 'http://localhost:3000'
+       // apiURL: 'http://localhost:3001',
         apiURL: 'https://api.status.ronanfuruta.com',
-        version: require('../package').version
+        version: require('../package').version,
+        admin: false
       }
     },
     methods: {
       logOut() {
+        this.user = false
+        this.admin = false
         this.$firebase.auth().signOut().then(i => {
           this.$router.push('/login')
         })
       }
     },
     mounted() {
+
       this.$firebase.auth().onAuthStateChanged(user => {
         console.log('auth state changed')
         if (user) {
@@ -67,11 +73,26 @@
             email: user.email,
             uid: user.uid,
           }
-          this.$firebase.firestore().collection('users').doc(user.uid).update({
-            name: user.displayName,
-            email: user.email,
-            lastLoggedIn: Date.now()
+          this.$firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then((idToken) => {
+            // Send token to your backend via HTTPS
+            fetch(this.apiURL + '/user', {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                user: idToken
+              },
+              body: JSON.stringify({
+                name: user.displayName,
+                email: user.email,
+                lastLoggedIn: Date.now()
+              })
+            }).then(res => res.json()).then(res => {
+              console.log(res, 'result from admin check')
+              this.admin = res.admin;
+            })
+            // ...
           })
+
         } else {
           console.log('no user')
 

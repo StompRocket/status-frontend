@@ -4,6 +4,7 @@ body, html, #app {
 }
 
 .page {
+padding-top: 8%;
   min-height: 95%;
 }
 
@@ -19,14 +20,14 @@ body, html, #app {
 
 #monitors {
   display: flex;
-  margin-top: 5%;
+
   flex-wrap: wrap;
 }
 
 .monitor {
   width: 30%;
   margin: 1%;
-
+min-height: 10vh;
   min-width: 300px;
 }
 
@@ -36,4 +37,18 @@ body, html, #app {
 
 .monitorLastPing {
   margin-top: 2px;
+}
+
+.newMonitor {
+
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center;
+  transition-duration: 0.5s;
+
+  &:hover {
+    background-color: white!important;
+  }
 }
